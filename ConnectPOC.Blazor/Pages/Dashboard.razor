@@ -1,0 +1,238 @@
+﻿@page "/dashboard"
+@using ConnectPOC.Blazor.Models
+@using MudBlazor
+@using System.Net.Http.Json
+@inject HttpClient Http
+@inject ConnectPOC.Blazor.Services.GlobalStateService GlobalState
+@inject ConnectPOC.Blazor.Services.UserService UserService
+
+@inject NavigationManager NavManager
+@inject IConfiguration Configuration
+
+<div class="container my-5">
+    <h2>Welcome to the Dashboard! @GlobalState.UserName</h2>
+    <p>See the recent activities here.</p>
+
+    <MudTabs Elevation="2" Rounded="true" Centered="true" Class="my-6" Color="Color.Dark" @bind-ActivePanelIndex="activeTab">
+        <MudTabPanel Icon="@Icons.Material.Filled.AccessTimeFilled" Text="Home" BadgeData='""' BadgeColor="Color.Error">
+            Home Page
+        </MudTabPanel>
+
+        <MudTabPanel Icon="@Icons.Material.Filled.VerifiedUser" Text="Users" BadgeData='""' BadgeColor="Color.Success">
+            <div style="display: flex;  flex-wrap: wrap;  gap: 16px;  padding: 16px;" >
+                <h3 class="section-title">Users List</h3>
+            <MudGrid>
+
+                @if (users == null || users.Count == 0)
+                {
+                    <p>Loading users...</p>
+                    <MudProgressCircular Indeterminate="true" Style="width:50px; height:50px;" Class="m-auto" />
+                }
+                else
+                {
+                    <!-- Users Section -->
+                    
+                    
+
+
+                    <div class="user-grid">
+                        @foreach (var user in users)
+                        {
+                            <div class="user-card">
+                                <h4>@user.FullName</h4>
+                                <p><strong>Email:</strong> @user.Email</p>
+                                <p><strong>Mobile:</strong> @user.MobileNumber</p>
+                            </div>
+                        }
+                    </div>
+                }
+            </MudGrid>
+            </div>
+        </MudTabPanel>
+
+        <MudTabPanel Icon="@Icons.Material.Filled.SupervisedUserCircle" Text="Dealers" BadgeData='""'>
+            Dealers Page
+        </MudTabPanel>
+    </MudTabs>
+</div>
+
+@code {
+    @code {
+        private int _activeTab = 0;
+
+        private int activeTab
+        {
+            get => _activeTab;
+            set
+            {
+                _activeTab = value;
+                OnTabChanged(_activeTab); // Call the tab change method when activeTab changes
+            }
+        }
+
+        private List<UserProfile> users = new();
+        private bool isLoading = false;
+
+        protected override void OnInitialized()
+        {
+            if (string.IsNullOrEmpty(GlobalState.Token))
+            {
+                NavManager.NavigateTo("/", true);
+            }
+        }
+
+        private async Task LoadUsers()
+        {
+            isLoading = true;
+            try
+            {
+                if (users is null || users.Count == 0)
+                    users = await UserService.GetUsersAsync();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error fetching users: {ex.Message}");
+            }
+            finally
+            {
+                isLoading = false;
+            }
+        }
+
+        private async void OnTabChanged(int index)
+        {
+            if (index == 1) // Users Tab
+            {
+                await LoadUsers();
+                StateHasChanged();
+            }
+        }
+    }
+
+}
+
+@*  <style> *@
+@*     /* Main Styling */ *@
+@*     body { *@
+@*         font-family: 'Poppins', sans-serif; *@
+@*         background-color: #000; *@
+@*         color: #fff; *@
+@*         margin: 0; *@
+@*         padding: 0; *@
+@*     } *@
+
+@*     /* Dashboard Title */ *@
+@*     .title { *@
+@*         font-size: 32px; *@
+@*         font-weight: bold; *@
+@*         text-align: center; *@
+@*         margin-top: 20px; *@
+@*     } *@
+
+@*     .subtitle { *@
+@*         text-align: center; *@
+@*         font-size: 18px; *@
+@*         color: #ccc; *@
+@*     } *@
+
+@*     /* Tab Styling */ *@
+@*     .tab-container { *@
+@*         display: flex; *@
+@*         justify-content: center; *@
+@*         margin: 20px 0; *@
+@*     } *@
+
+@*     .tab-button { *@
+@*         background: #111; *@
+@*         color: #fff; *@
+@*         border: 1px solid #fff; *@
+@*         padding: 12px 24px; *@
+@*         margin: 5px; *@
+@*         font-size: 16px; *@
+@*         cursor: pointer; *@
+@*         border-radius: 8px; *@
+@*         transition: 0.3s; *@
+@*         box-shadow: 0 4px 6px rgba(255, 255, 255, 0.1); *@
+@*     } *@
+
+@*         .tab-button:hover { *@
+@*             background: #fff; *@
+@*             color: #000; *@
+@*             border: 1px solid #000; *@
+@*         } *@
+
+@*     /* Users Section */ *@
+@*     .section-title { *@
+@*         font-size: 24px; *@
+@*         margin: 20px auto; *@
+@*         text-align: center; *@
+@*         font-weight: 600; *@
+@*     } *@
+
+@*     /* User Cards Grid - Responsive */ *@
+@*     .user-grid { *@
+@*         display: grid; *@
+@*         grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); /* Responsive grid */ *@
+@*         gap: 20px; *@
+@*         margin: 20px 5%; *@
+@*     } *@
+
+@*     /* User Card */ *@
+@*     .user-card { *@
+@*         background: rgba(255, 255, 255, 0.05); /* Glassy effect */ *@
+@*         padding: 20px; *@
+@*         border-radius: 12px; *@
+@*         box-shadow: inset 0 0 10px rgba(255, 255, 255, 0.2), 0 4px 10px rgba(255, 255, 255, 0.1); *@
+@*         transition: all 0.4s ease-in-out; *@
+@*         backdrop-filter: blur(10px); /* Glass effect */ *@
+@*         border: 1px solid rgba(255, 255, 255, 0.2); *@
+@*     } *@
+
+@*         /* Hover Effect - Embossed & Glassy */ *@
+@*         .user-card:hover { *@
+@*             transform: translateY(-15px); *@
+@*             box-shadow: inset 0 0 15px rgba(255, 255, 255, 0.3), 0 6px 14px rgba(255, 255, 255, 0.3); *@
+@*             border: 1px solid rgba(255, 255, 255, 0.5); *@
+@*         } *@
+
+@*         /* User Card Text */ *@
+@*         .user-card h4 { *@
+@*             font-size: 20px; *@
+@*             font-weight: bold; *@
+@*             color: #fff; *@
+@*         } *@
+
+@*         .user-card p { *@
+@*             font-size: 14px; *@
+@*             color: #ccc; *@
+@*             margin-top: 5px; *@
+@*         } *@
+
+@*     .card-container { *@
+@*         display: flex; *@
+@*         flex-wrap: wrap; *@
+@*         gap: 16px; /* Space between cards */ *@
+@*         justify-content: space-evenly; /* Distribute cards evenly */ *@
+@*     } *@
+
+@*     .card { *@
+@*         flex: 1 1 calc(33.33% - 32px); /* 3 cards per row, adjust as needed */ *@
+@*         min-width: 250px; /* Prevent cards from becoming too small */ *@
+@*         padding: 20px; *@
+@*         background: rgba(255, 255, 255, 0.1); *@
+@*         border-radius: 10px; *@
+@*         box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); *@
+@*         transition: all 0.3s ease-in-out; *@
+@*     } *@
+
+@*         .card:hover { *@
+@*             background: rgba(255, 255, 255, 0.2); *@
+@*             backdrop-filter: blur(10px); *@
+@*             transform: translateY(-5px); *@
+@*             box-shadow: 0px 6px 12px rgba(255, 255, 255, 0.3); *@
+@*         } *@
+
+@*     h2, p { *@
+@*         color: white; *@
+@*     } *@
+@* </style>  *@

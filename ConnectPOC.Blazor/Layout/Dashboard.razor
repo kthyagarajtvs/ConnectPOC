@@ -1,0 +1,9 @@
+﻿@inherits LayoutComponentBase
+@inject ConnectPOC.Blazor.Services.GlobalStateService GlobalState
+
+<div class="top-bar">
+    <span>@GlobalState.UserName</span>
+    <button @onclick="() => GlobalState.Logout()">Logout</button>
+</div>
+
+@Body

@@ -1,0 +1,181 @@
+﻿ @page "/"
+@inject HttpClient Http
+@inject NavigationManager NavManager
+@inject ConnectPOC.Blazor.Services.GlobalStateService GlobalState
+@inject IConfiguration Configuration
+
+<div class="login-container">
+    <h3>Login</h3>
+    <EditForm Model="@this" OnValidSubmit="@LoginUser">
+        <div class="form-group">
+            <label>Email</label>
+            <input class="form-control" @bind="email" @onkeypress="HandleKeyPress" />
+        </div>
+        <div class="form-group mt-3">
+            <label>Password</label>
+            <input type="password" class="form-control" @bind="password" @onkeypress="HandleKeyPress" />
+        </div>
+        <button class="btn btn-primary w-100 mt-4" @onclick="LoginUser" disabled="@isProcessing">
+            @(isProcessing ? "Processing..." : "Login")
+        </button>
+    </EditForm>
+
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <div class="alert alert-danger mt-2" role="alert">
+            @errorMessage
+        </div>
+    }
+
+    <div class="mt-3 text-center">
+        <a href="register" class="text-primary" style="cursor: pointer; text-decoration: none;">
+            ➡️ Register New User
+        </a>
+    </div>
+</div>
+
+@code {
+    private string email;
+    private string password;
+    private string errorMessage = string.Empty;
+    private bool isProcessing = false;
+
+    private async Task LoginUser()
+    {
+        try
+        {
+            isProcessing = true; // Disable button while processing
+            errorMessage = string.Empty;
+
+            errorMessage = string.Empty;
+            var baseUrl = Configuration["ApiSettings:BaseUrl"];
+
+            var user = new
+            {
+                id = Guid.NewGuid().ToString(),
+                userId = new Random().Next(1000, 9999999), // Generate a random integer for now
+                username = email.Split('@')[0],
+                email = email,
+                passwordHash = password,
+                createdAt = DateTime.UtcNow.ToString("o"),
+                fullName = "John Doe",  // ✅ Required field
+                emailAddress = email,   // ✅ Use emailAddress instead of email
+                mobileNumber = "9876543210", // ✅ Required field
+            };
+
+            var response = await Http.PostAsJsonAsync($"{baseUrl}/User/login", user);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var token = await response.Content.ReadAsStringAsync();
+                GlobalState.Token = token;
+                NavManager.NavigateTo("/dashboard");
+            }
+            else
+            {
+                errorMessage = "❌ Login failed! Incorrect email or password.";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = "🚨 Error: " + ex.Message;
+        }
+        finally
+        {
+            isProcessing = false; // Enable button after processing
+        }
+    }
+
+    private void HandleKeyPress(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            LoginUser();
+        }
+    }
+}
+
+
+
+
+
+@* @page "/"
+@inject HttpClient Http
+@inject NavigationManager NavManager
+@inject ConnectPOC.Blazor.Services.GlobalStateService GlobalState
+@inject IConfiguration Configuration
+
+<div class="login-container">
+    <h3>Login</h3>
+
+    <div class="form-group">
+        <label>Email</label>
+        <input class="form-control" @bind="email" type="email" />
+    </div>
+
+    <div class="form-group mt-3">
+        <label>Password</label>
+        <input type="password" class="form-control" @bind="password" />
+    </div>
+
+    <!-- Error Message -->
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <div class="alert alert-danger mt-2" role="alert">
+            @errorMessage
+        </div>
+    }
+
+    <button class="btn btn-primary w-100 mt-4" @onclick="LoginUser">Login</button>
+
+    <div class="mt-3 text-center">
+        <a href="register" class="text-primary" style="cursor: pointer; text-decoration: none;">
+            ➡️ Register New User
+        </a>
+    </div>
+</div>
+
+@code {
+    private string errorMessage = string.Empty;
+    private string email;
+    private string password;
+
+    private async Task LoginUser()
+    {
+        try
+        {
+            errorMessage = string.Empty;
+            var baseUrl = Configuration["ApiSettings:BaseUrl"]; // Get Base URL from config
+
+            var user = new
+            {
+                id = Guid.NewGuid().ToString(), // Temporary ID (API might ignore it)
+                userId = Guid.NewGuid().ToString(), // Temporary User ID
+                username = email.Split('@')[0], // Use email prefix as username (if needed)
+                email = email,
+                passwordHash = password,
+                createdAt = DateTime.UtcNow.ToString("o") // ISO 8601 format
+            };
+
+            var response = await Http.PostAsJsonAsync($"{baseUrl}/User/login", user);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var token = await response.Content.ReadAsStringAsync();
+                GlobalState.UserName = email;
+                GlobalState.Token = token;
+                NavManager.NavigateTo("/dashboard");
+            }
+            else
+            {
+                errorMessage = "❌ Login failed! Incorrect email or password.";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = "🚨 Error: " + ex.Message;
+            Console.WriteLine($"Exception: {ex}");
+        }
+    }
+}
+ *@

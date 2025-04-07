@@ -1,0 +1,91 @@
+﻿@using ConnectPOC.Blazor.Services
+@inherits LayoutComponentBase
+@inject NavigationManager NavManager
+@inject ConnectPOC.Blazor.Services.GlobalStateService GlobalState
+@inject IJSRuntime JS
+
+<div class="top-bar d-flex justify-content-between align-items-center p-2 bg-dark text-white fixed-header">
+    <div class="user-name ms-2">
+        @UserName
+    </div>
+
+    <div class="logout-button me-2">
+        @if (!string.IsNullOrEmpty(GlobalState.Token))
+        {
+            <button class="btn btn-outline-light" @onclick="Logout">Logout</button>
+        }
+        else
+        {
+            <span class="btn-placeholder"></span> @* Keeps space reserved *@
+        }
+    </div>
+</div>
+
+<div class="container mt-4">
+    @Body
+</div>
+
+@code {
+    private string UserName = string.Empty;
+
+    protected override void OnInitialized()
+    {
+        UserName = Services.GlobalState.UserName; // Example: "John Doe"
+    }
+
+    private async Task Logout()
+    {
+        GlobalState.UserName = string.Empty;
+        GlobalState.Token = string.Empty;
+        NavManager.NavigateTo("/", true);
+
+        await JS.InvokeVoidAsync("preventBackNavigation");
+    }
+}
+
+
+
+
+@* @using ConnectPOC.Blazor.Services
+@inherits LayoutComponentBase
+@inject NavigationManager NavManager
+@inject ConnectPOC.Blazor.Services.GlobalStateService GlobalState
+
+<div class="top-bar d-flex justify-content-between align-items-center p-2 bg-dark text-white">
+    <div class="user-name ms-2">
+        @UserName
+    </div>
+
+    @if (!string.IsNullOrEmpty(GlobalState.Token))
+    {
+        <div class="logout-button me-2">
+            <button class="btn btn-outline-light" @onclick="Logout">Logout</button>
+        </div>
+    }
+
+</div>
+
+<div class="container mt-4">
+    @Body
+</div>
+
+@code {
+    private string UserName = string.Empty;
+
+    protected override void OnInitialized()
+    {
+        // For demonstration, let's assume we stored the user name in a static class or local storage
+        UserName = Services.GlobalState.UserName; // e.g., "John Doe"
+    }
+
+    private void Logout()
+    {
+        // Clear token / user state
+        GlobalState.UserName = string.Empty;
+        GlobalState.Token = string.Empty;
+
+        // Navigate to Login
+        NavManager.NavigateTo("/");
+    }
+}
+ *@
