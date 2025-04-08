@@ -22,7 +22,7 @@
             <div style="display: flex;  flex-wrap: wrap;  gap: 16px;  padding: 16px;" >
                 <h3 class="section-title">Users List</h3>
             <MudGrid>
-
+                <MudPaper Class="d-flex flex-wrap gap-4" MaxWidth="528px" Elevation="0">
                 @if (users == null || users.Count == 0)
                 {
                     <p>Loading users...</p>
@@ -46,6 +46,7 @@
                         }
                     </div>
                 }
+                    </MudPaper>
             </MudGrid>
             </div>
         </MudTabPanel>

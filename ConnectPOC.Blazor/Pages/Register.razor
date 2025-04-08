@@ -21,20 +21,25 @@
         <input type="password" class="form-control" @bind="password" />
     </div>
 
-    <!-- Error Message -->
+    <div class="form-group mt-3">
+        <label>City</label>
+        <select class="form-control" @bind="user.CityId">
+            <option value="">-- Select City --</option>
+            @foreach (var city in cities)
+            {
+                <option value="@city.CityId">@city.CityName</option>
+            }
+        </select>
+    </div>
+
     @if (!string.IsNullOrEmpty(errorMessage))
     {
-        <div class="alert alert-danger mt-2" role="alert">
-            @errorMessage
-        </div>
+        <div class="alert alert-danger mt-2">@errorMessage</div>
     }
 
-    <!-- Success Message -->
     @if (!string.IsNullOrEmpty(successMessage))
     {
-        <div class="alert alert-success mt-2" role="alert">
-            @successMessage
-        </div>
+        <div class="alert alert-success mt-2">@successMessage</div>
     }
 
     <button class="btn btn-primary w-100 mt-4" @onclick="RegisterUser">Register</button>
@@ -46,9 +51,28 @@
 
 @code {
     private User user = new User();
+    private List<City> cities = new();
     private string password = string.Empty;
     private string errorMessage = string.Empty;
     private string successMessage = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadCities();
+    }
+
+    private async Task LoadCities()
+    {
+        try
+        {
+            var baseUrl = Configuration["ApiSettings:BaseUrl"];
+            cities = await Http.GetFromJsonAsync<List<City>>($"{baseUrl}/City/all") ?? new();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = "Error loading cities: " + ex.Message;
+        }
+    }
 
     private async Task RegisterUser()
     {
@@ -63,13 +87,13 @@
             user.CreatedAt = DateTime.UtcNow.ToString("o");
 
             var baseUrl = Configuration["ApiSettings:BaseUrl"];
-            var response = await Http.PostAsJsonAsync($"{baseUrl}/api/User/register", user);
+            var response = await Http.PostAsJsonAsync($"{baseUrl}/User/register", user);
 
             if (response.IsSuccessStatusCode)
             {
                 successMessage = "✅ Registration successful! Redirecting to login...";
-                await Task.Delay(2000); // Delay before redirect
-                NavManager.NavigateTo("/login"); // Navigate to Login Page
+                await Task.Delay(2000);
+                NavManager.NavigateTo("/");
             }
             else
             {
@@ -79,13 +103,12 @@
         catch (Exception ex)
         {
             errorMessage = "🚨 Error: " + ex.Message;
-            Console.WriteLine($"Exception: {ex}");
         }
     }
 
     private void GoToLogin()
     {
-        NavManager.NavigateTo("/"); // Navigate to Login Page
+        NavManager.NavigateTo("/");
     }
 
     public class User
@@ -96,5 +119,12 @@
         public string Email { get; set; } = string.Empty;
         public string PasswordHash { get; set; } = string.Empty;
         public string CreatedAt { get; set; } = string.Empty;
+        public int CityId { get; set; }
+    }
+
+    public class City
+    {
+        public int CityId { get; set; }
+        public string CityName { get; set; } = string.Empty;
     }
 }
