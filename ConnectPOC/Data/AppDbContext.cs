@@ -14,6 +14,8 @@ namespace ConnectPOC.Data
 
         public DbSet<ApacheNONIOTCumulative> ApacheNONIOTCumulative { get; set; }
 
+        public DbSet<ICubeDealer> ICubeDealers { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             // UserProfile -> UserVehicles (One-to-Many)
@@ -119,7 +121,7 @@ namespace ConnectPOC.Data
             modelBuilder.Entity<VehicleType>().HasKey(r => r.VehicleTypeId);
             modelBuilder.Entity<EmergencyContact>().HasKey(r => r.EmergencyContactId);
             modelBuilder.Entity<HomeVideo>().HasKey(r => r.VideoLinkId);
-
+            modelBuilder.Entity<ICubeDealer>().HasKey(r => r.Id);
 
         }
 
