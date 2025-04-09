@@ -33,17 +33,14 @@ namespace ConnectPOC
             RepositoryFactory.Register(builder.Services, config);
 
             // Register custom token service
-           builder.Services.AddScoped<ITokenService, TokenService>();
-           builder.Services.AddScoped<IUserRepository, Repositories.SqlImplementations.UserRepository>();
-
+            builder.Services.AddScoped<ITokenService, TokenService>();
+            builder.Services.AddScoped<IUserRepository, Repositories.SqlImplementations.UserRepository>();
             builder.Services.AddScoped<IDealerRepository, Repositories.SqlImplementations.DealerRepository>();
-
-            builder.Services.AddScoped<ICityRepository,Repositories.SqlImplementations.CityRepository>();
-
+            builder.Services.AddScoped<ICityRepository, Repositories.SqlImplementations.CityRepository>();
 
             // JWT Authentication Setup
             var secretKey = "D1A2B3C4E5F60718293A4B5C6D7E8F90G1H2I3J4K5L6M7N8O9P0Q1R2S3T4U5V6";
-               
+
             builder.Services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -74,7 +71,7 @@ namespace ConnectPOC
                 app.UseSwaggerUI();
             }
 
-           
+
             app.UseCors("BlazorCORSPolicy");
             app.UseAuthentication();
             app.UseAuthorization();

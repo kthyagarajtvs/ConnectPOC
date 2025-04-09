@@ -1,4 +1,5 @@
-﻿using ConnectPOC.Models;
+﻿using ConnectPOC.DTOs;
+using ConnectPOC.Models;
 using ConnectPOC.Repositories.Interfaces;
 using MongoDB.Driver;
 
@@ -31,6 +32,11 @@ namespace ConnectPOC.Repositories.MongoImplementations
         async Task<List<UserProfile>> IUserRepository.GetAllAsync()
         {
             return await _users.Find(_ => true).ToListAsync();
+        }
+
+        Task<List<UserDashboardBasicInfoDto>> IUserRepository.GetUserDashboardDetailsAsync()
+        {
+            throw new NotImplementedException();
         }
     }
 }

@@ -43,5 +43,10 @@ namespace ConnectPOC.Blazor.Services
 
             return false;
         }
+
+        public async Task<List<UserDashboardBasicInfoDto>> GetUserDashboardAsync()
+        {
+            return await _httpClient.GetFromJsonAsync<List<UserDashboardBasicInfoDto>>($"{baseUrl}/Dashboard/user-dashboard") ?? new List<UserDashboardBasicInfoDto>();
+        }
     }
 }

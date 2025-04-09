@@ -16,43 +16,117 @@
 
     <MudTabs Elevation="2" Rounded="true" Centered="true" Class="my-6" Color="Color.Dark" @bind-ActivePanelIndex="activeTab">
         <MudTabPanel Icon="@Icons.Material.Filled.AccessTimeFilled" Text="Home" BadgeData='""' BadgeColor="Color.Error">
-            Home Page
+            <Mudgrid>
+                <div class="container mt-4">
+                    <h2 class="mb-4">User Dashboard</h2>
+
+                    @if (userDashboardList == null || !userDashboardList.Any())
+                    {
+                        <p>Loading dashboard data...</p>
+                    }
+                    else
+                    {
+                        <div class="row">
+                            @foreach (var user in userDashboardList)
+                            {
+                                <div class="col-md-4 mb-4">
+                                    <div class="card shadow-sm" @onclick="() => ShowVehicleDetails(user)">
+                                        <img src="@user.ProfileImagePath" class="card-img-top" alt="@user.FullName" style="height: 200px; object-fit: cover;" />
+                                        <div class="card-body">
+                                            <h5 class="card-title">@user.FullName</h5>
+                                            <p class="card-text">Blood Group: @user.BloodGroup</p>
+                                            <p class="card-text">Allergies: @(string.IsNullOrWhiteSpace(user.AllergicContent) ? "None" : user.AllergicContent)</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+
+                @if (selectedUser != null)
+                {
+                    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.6);">
+                        <div class="modal-dialog modal-lg">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Vehicles for @selectedUser.FullName</h5>
+                                    <button type="button" class="btn-close" @onclick="CloseModal"></button>
+                                </div>
+                                <div class="modal-body">
+                                    @if (selectedUser.Vehicles?.Any() == true)
+                                    {
+                                        <table class="table table-striped">
+                                            <thead>
+                                                <tr>
+                                                    <th>Nickname</th>
+                                                    <th>Vehicle Name</th>
+                                                    <th>Frame No</th>
+                                                    <th>Insert Date</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach (var v in selectedUser.Vehicles)
+                                                {
+                                                    <tr>
+                                                        <td>@v.NickName</td>
+                                                        <td>@v.VehicleName</td>
+                                                        <td>@v.FrameNo</td>
+                                                        <td>@v.InsertDate.ToShortDateString()</td>
+                                                    </tr>
+                                                }
+                                            </tbody>
+                                        </table>
+                                    }
+                                    else
+                                    {
+                                        <p>No vehicles found.</p>
+                                    }
+                                </div>
+                                <div class="modal-footer">
+                                    <button class="btn btn-secondary" @onclick="CloseModal">Close</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </Mudgrid>
         </MudTabPanel>
 
         <MudTabPanel Icon="@Icons.Material.Filled.VerifiedUser" Text="Users" BadgeData='""' BadgeColor="Color.Success">
-            <div style="display: flex;  flex-wrap: wrap;  gap: 16px;  padding: 16px;" >
+            <div style="display: flex;  flex-wrap: wrap;  gap: 16px;  padding: 16px;">
                 <h3 class="section-title">Users List</h3>
 
-            <MudGrid>
-                <MudPaper Class="d-flex flex-wrap gap-4" MaxWidth="528px" Elevation="0">
-                @if (users == null || users.Count == 0)
-                {
-                    <p>Loading users...</p>
-                    <MudProgressCircular Indeterminate="true" Style="width:50px; height:50px;" Class="m-auto" />
-                }
-                else
-                {
-                    <!-- Users Section -->
-                    
-                               <div class="user-grid">
-                        @foreach (var user in users)
+                <MudGrid>
+                    <MudPaper Class="d-flex flex-wrap gap-4" MaxWidth="528px" Elevation="0">
+                        @if (users == null || users.Count == 0)
                         {
-                            <div class="user-card">
-                                <h4>@user.FullName</h4>
-                                <p><strong>Email:</strong> @user.Email</p>
-                                <p><strong>Mobile:</strong> @user.MobileNumber</p>
+                            <p>Loading users...</p>
+                            <MudProgressCircular Indeterminate="true" Style="width:50px; height:50px;" Class="m-auto" />
+                        }
+                        else
+                        {
+                            <!-- Users Section -->
+
+                            <div class="user-grid">
+                                @foreach (var user in users)
+                                {
+                                    <div class="user-card">
+                                        <h4>@user.FullName</h4>
+                                        <p><strong>Email:</strong> @user.Email</p>
+                                        <p><strong>Mobile:</strong> @user.MobileNumber</p>
+                                    </div>
+                                }
                             </div>
                         }
-                    </div>
-                }
                     </MudPaper>
-            </MudGrid>
+                </MudGrid>
 
             </div>
         </MudTabPanel>
 
         <MudTabPanel Icon="@Icons.Material.Filled.SupervisedUserCircle" Text="Dealers" BadgeData='""'>
-            <div style="display: flex;  flex-wrap: wrap;  gap: 16px;  padding: 16px;" >
+            <div style="display: flex;  flex-wrap: wrap;  gap: 16px;  padding: 16px;">
                 <h3 class="section-title">Dealers List</h3>
 
                 <MudGrid>
@@ -79,7 +153,10 @@
                 </MudGrid>
             </div>
         </MudTabPanel>
+
     </MudTabs>
+
+
 </div>
 
 @code {
@@ -152,138 +229,156 @@
                 StateHasChanged();
             }
 
-            else if(index == 2)
+            else if (index == 2)
             {
                 await LoadDealers();
                 StateHasChanged();
             }
         }
+
+        private List<UserDashboardBasicInfoDto> userDashboardList = new();
+        private UserDashboardBasicInfoDto? selectedUser;
+
+        protected override async Task OnInitializedAsync()
+        {
+            userDashboardList = await UserService.GetUserDashboardAsync();
+        }
+
+        private void ShowVehicleDetails(UserDashboardBasicInfoDto user)
+        {
+            selectedUser = user;
+        }
+
+        private void CloseModal()
+        {
+            selectedUser = null;
+        }
     }
 
-}
+                }
 
-@*  <style> *@
-@*     /* Main Styling */ *@
-@*     body { *@
-@*         font-family: 'Poppins', sans-serif; *@
-@*         background-color: #000; *@
-@*         color: #fff; *@
-@*         margin: 0; *@
-@*         padding: 0; *@
-@*     } *@
+                    @*  <style> *@
+                    @*     /* Main Styling */ *@
+                    @*     body { *@
+                    @*         font-family: 'Poppins', sans-serif; *@
+                    @*         background-color: #000; *@
+                    @*         color: #fff; *@
+                    @*         margin: 0; *@
+                    @*         padding: 0; *@
+                    @*     } *@
 
-@*     /* Dashboard Title */ *@
-@*     .title { *@
-@*         font-size: 32px; *@
-@*         font-weight: bold; *@
-@*         text-align: center; *@
-@*         margin-top: 20px; *@
-@*     } *@
+                    @*     /* Dashboard Title */ *@
+                    @*     .title { *@
+                    @*         font-size: 32px; *@
+                    @*         font-weight: bold; *@
+                    @*         text-align: center; *@
+                    @*         margin-top: 20px; *@
+                    @*     } *@
 
-@*     .subtitle { *@
-@*         text-align: center; *@
-@*         font-size: 18px; *@
-@*         color: #ccc; *@
-@*     } *@
+                    @*     .subtitle { *@
+                    @*         text-align: center; *@
+                    @*         font-size: 18px; *@
+                    @*         color: #ccc; *@
+                    @*     } *@
 
-@*     /* Tab Styling */ *@
-@*     .tab-container { *@
-@*         display: flex; *@
-@*         justify-content: center; *@
-@*         margin: 20px 0; *@
-@*     } *@
+                    @*     /* Tab Styling */ *@
+                    @*     .tab-container { *@
+                    @*         display: flex; *@
+                    @*         justify-content: center; *@
+                    @*         margin: 20px 0; *@
+                    @*     } *@
 
-@*     .tab-button { *@
-@*         background: #111; *@
-@*         color: #fff; *@
-@*         border: 1px solid #fff; *@
-@*         padding: 12px 24px; *@
-@*         margin: 5px; *@
-@*         font-size: 16px; *@
-@*         cursor: pointer; *@
-@*         border-radius: 8px; *@
-@*         transition: 0.3s; *@
-@*         box-shadow: 0 4px 6px rgba(255, 255, 255, 0.1); *@
-@*     } *@
+                    @*     .tab-button { *@
+                    @*         background: #111; *@
+                    @*         color: #fff; *@
+                    @*         border: 1px solid #fff; *@
+                    @*         padding: 12px 24px; *@
+                    @*         margin: 5px; *@
+                    @*         font-size: 16px; *@
+                    @*         cursor: pointer; *@
+                    @*         border-radius: 8px; *@
+                    @*         transition: 0.3s; *@
+                    @*         box-shadow: 0 4px 6px rgba(255, 255, 255, 0.1); *@
+                    @*     } *@
 
-@*         .tab-button:hover { *@
-@*             background: #fff; *@
-@*             color: #000; *@
-@*             border: 1px solid #000; *@
-@*         } *@
+                    @*         .tab-button:hover { *@
+                    @*             background: #fff; *@
+                    @*             color: #000; *@
+                    @*             border: 1px solid #000; *@
+                    @*         } *@
 
-@*     /* Users Section */ *@
-@*     .section-title { *@
-@*         font-size: 24px; *@
-@*         margin: 20px auto; *@
-@*         text-align: center; *@
-@*         font-weight: 600; *@
-@*     } *@
+                    @*     /* Users Section */ *@
+                    @*     .section-title { *@
+                    @*         font-size: 24px; *@
+                    @*         margin: 20px auto; *@
+                    @*         text-align: center; *@
+                    @*         font-weight: 600; *@
+                    @*     } *@
 
-@*     /* User Cards Grid - Responsive */ *@
-@*     .user-grid { *@
-@*         display: grid; *@
-@*         grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); /* Responsive grid */ *@
-@*         gap: 20px; *@
-@*         margin: 20px 5%; *@
-@*     } *@
+                    @*     /* User Cards Grid - Responsive */ *@
+                    @*     .user-grid { *@
+                    @*         display: grid; *@
+                    @*         grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); /* Responsive grid */ *@
+                    @*         gap: 20px; *@
+                    @*         margin: 20px 5%; *@
+                    @*     } *@
 
-@*     /* User Card */ *@
-@*     .user-card { *@
-@*         background: rgba(255, 255, 255, 0.05); /* Glassy effect */ *@
-@*         padding: 20px; *@
-@*         border-radius: 12px; *@
-@*         box-shadow: inset 0 0 10px rgba(255, 255, 255, 0.2), 0 4px 10px rgba(255, 255, 255, 0.1); *@
-@*         transition: all 0.4s ease-in-out; *@
-@*         backdrop-filter: blur(10px); /* Glass effect */ *@
-@*         border: 1px solid rgba(255, 255, 255, 0.2); *@
-@*     } *@
+                    @*     /* User Card */ *@
+                    @*     .user-card { *@
+                    @*         background: rgba(255, 255, 255, 0.05); /* Glassy effect */ *@
+                    @*         padding: 20px; *@
+                    @*         border-radius: 12px; *@
+                    @*         box-shadow: inset 0 0 10px rgba(255, 255, 255, 0.2), 0 4px 10px rgba(255, 255, 255, 0.1); *@
+                    @*         transition: all 0.4s ease-in-out; *@
+                    @*         backdrop-filter: blur(10px); /* Glass effect */ *@
+                    @*         border: 1px solid rgba(255, 255, 255, 0.2); *@
+                    @*     } *@
 
-@*         /* Hover Effect - Embossed & Glassy */ *@
-@*         .user-card:hover { *@
-@*             transform: translateY(-15px); *@
-@*             box-shadow: inset 0 0 15px rgba(255, 255, 255, 0.3), 0 6px 14px rgba(255, 255, 255, 0.3); *@
-@*             border: 1px solid rgba(255, 255, 255, 0.5); *@
-@*         } *@
+                    @*         /* Hover Effect - Embossed & Glassy */ *@
+                    @*         .user-card:hover { *@
+                    @*             transform: translateY(-15px); *@
+                    @*             box-shadow: inset 0 0 15px rgba(255, 255, 255, 0.3), 0 6px 14px rgba(255, 255, 255, 0.3); *@
+                    @*             border: 1px solid rgba(255, 255, 255, 0.5); *@
+                    @*         } *@
 
-@*         /* User Card Text */ *@
-@*         .user-card h4 { *@
-@*             font-size: 20px; *@
-@*             font-weight: bold; *@
-@*             color: #fff; *@
-@*         } *@
+                    @*         /* User Card Text */ *@
+                    @*         .user-card h4 { *@
+                    @*             font-size: 20px; *@
+                    @*             font-weight: bold; *@
+                    @*             color: #fff; *@
+                    @*         } *@
 
-@*         .user-card p { *@
-@*             font-size: 14px; *@
-@*             color: #ccc; *@
-@*             margin-top: 5px; *@
-@*         } *@
+                    @*         .user-card p { *@
+                    @*             font-size: 14px; *@
+                    @*             color: #ccc; *@
+                    @*             margin-top: 5px; *@
+                    @*         } *@
 
-@*     .card-container { *@
-@*         display: flex; *@
-@*         flex-wrap: wrap; *@
-@*         gap: 16px; /* Space between cards */ *@
-@*         justify-content: space-evenly; /* Distribute cards evenly */ *@
-@*     } *@
+                    @*     .card-container { *@
+                    @*         display: flex; *@
+                    @*         flex-wrap: wrap; *@
+                    @*         gap: 16px; /* Space between cards */ *@
+                    @*         justify-content: space-evenly; /* Distribute cards evenly */ *@
+                    @*     } *@
 
-@*     .card { *@
-@*         flex: 1 1 calc(33.33% - 32px); /* 3 cards per row, adjust as needed */ *@
-@*         min-width: 250px; /* Prevent cards from becoming too small */ *@
-@*         padding: 20px; *@
-@*         background: rgba(255, 255, 255, 0.1); *@
-@*         border-radius: 10px; *@
-@*         box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); *@
-@*         transition: all 0.3s ease-in-out; *@
-@*     } *@
+                    @*     .card { *@
+                    @*         flex: 1 1 calc(33.33% - 32px); /* 3 cards per row, adjust as needed */ *@
+                    @*         min-width: 250px; /* Prevent cards from becoming too small */ *@
+                    @*         padding: 20px; *@
+                    @*         background: rgba(255, 255, 255, 0.1); *@
+                    @*         border-radius: 10px; *@
+                    @*         box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); *@
+                    @*         transition: all 0.3s ease-in-out; *@
+                    @*     } *@
 
-@*         .card:hover { *@
-@*             background: rgba(255, 255, 255, 0.2); *@
-@*             backdrop-filter: blur(10px); *@
-@*             transform: translateY(-5px); *@
-@*             box-shadow: 0px 6px 12px rgba(255, 255, 255, 0.3); *@
-@*         } *@
+                    @*         .card:hover { *@
+                    @*             background: rgba(255, 255, 255, 0.2); *@
+                    @*             backdrop-filter: blur(10px); *@
+                    @*             transform: translateY(-5px); *@
+                    @*             box-shadow: 0px 6px 12px rgba(255, 255, 255, 0.3); *@
+                    @*         } *@
 
-@*     h2, p { *@
-@*         color: white; *@
-@*     } *@
-@* </style>  *@
+                    @*     h2, p { *@
+                    @*         color: white; *@
+                    @*     } *@
+                    @* </style>  *@
