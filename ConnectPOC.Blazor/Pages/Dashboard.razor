@@ -5,6 +5,7 @@
 @inject HttpClient Http
 @inject ConnectPOC.Blazor.Services.GlobalStateService GlobalState
 @inject ConnectPOC.Blazor.Services.UserService UserService
+@inject ConnectPOC.Blazor.Services.DealerService DealerService
 
 @inject NavigationManager NavManager
 @inject IConfiguration Configuration
@@ -21,37 +22,62 @@
         <MudTabPanel Icon="@Icons.Material.Filled.VerifiedUser" Text="Users" BadgeData='""' BadgeColor="Color.Success">
             <div style="display: flex;  flex-wrap: wrap;  gap: 16px;  padding: 16px;" >
                 <h3 class="section-title">Users List</h3>
-            <MudGrid>
+                <MudGrid>
 
-                @if (users == null || users.Count == 0)
-                {
-                    <p>Loading users...</p>
-                    <MudProgressCircular Indeterminate="true" Style="width:50px; height:50px;" Class="m-auto" />
-                }
-                else
-                {
-                    <!-- Users Section -->
-                    
-                    
+                    @if (users == null || users.Count == 0)
+                    {
+                        <p>Loading users...</p>
+                        <MudProgressCircular Indeterminate="true" Style="width:50px; height:50px;" Class="m-auto" />
+                    }
+                    else
+                    {
+                        <!-- Users Section -->
 
 
-                    <div class="user-grid">
-                        @foreach (var user in users)
-                        {
-                            <div class="user-card">
-                                <h4>@user.FullName</h4>
-                                <p><strong>Email:</strong> @user.Email</p>
-                                <p><strong>Mobile:</strong> @user.MobileNumber</p>
-                            </div>
-                        }
-                    </div>
-                }
-            </MudGrid>
+
+
+                        <div class="user-grid">
+                            @foreach (var user in users)
+                            {
+                                <div class="user-card">
+                                    <h4>@user.FullName</h4>
+                                    <p><strong>Email:</strong> @user.Email</p>
+                                    <p><strong>Mobile:</strong> @user.MobileNumber</p>
+                                </div>
+                            }
+                        </div>
+                    }
+                </MudGrid>
             </div>
         </MudTabPanel>
 
         <MudTabPanel Icon="@Icons.Material.Filled.SupervisedUserCircle" Text="Dealers" BadgeData='""'>
-            Dealers Page
+            <div style="display: flex;  flex-wrap: wrap;  gap: 16px;  padding: 16px;" >
+                <h3 class="section-title">Dealers List</h3>
+
+                <MudGrid>
+
+                    @if (dealers == null || dealers.Count == 0)
+                    {
+                        <p>Loading dealers...</p>
+                        <MudProgressCircular Indeterminate="true" Style="width:50px; height:50px;" Class="m-auto" />
+                    }
+                    else
+                    {
+                        <!-- Dealers Section -->
+                        <div class="user-grid">
+                            @foreach (var dealer in dealers)
+                            {
+                                <div class="user-card">
+                                    <h4>@dealer.Id</h4>
+                                    <p><strong>Name:</strong> @dealer.Name</p>
+                                    <p><strong>Code:</strong> @dealer.DelarCode</p>
+                                </div>
+                            }
+                        </div>
+                    }
+                </MudGrid>
+            </div>
         </MudTabPanel>
     </MudTabs>
 </div>
@@ -71,6 +97,7 @@
         }
 
         private List<UserProfile> users = new();
+        private List<ICubeDealers> dealers = new();
         private bool isLoading = false;
 
         protected override void OnInitialized()
@@ -99,11 +126,35 @@
             }
         }
 
+        private async Task LoadDealers()
+        {
+            isLoading = true;
+            try
+            {
+                if (dealers is null || dealers.Count == 0)
+                    dealers = await DealerService.GetDealersAsync();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error fetching dealers: {ex.Message}");
+            }
+            finally
+            {
+                isLoading = false;
+            }
+        }
+
         private async void OnTabChanged(int index)
         {
             if (index == 1) // Users Tab
             {
                 await LoadUsers();
+                StateHasChanged();
+            }
+
+            else if(index == 2)
+            {
+                await LoadDealers();
                 StateHasChanged();
             }
         }
