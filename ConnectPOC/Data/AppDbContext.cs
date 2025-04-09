@@ -14,7 +14,11 @@ namespace ConnectPOC.Data
 
         public DbSet<ApacheNONIOTCumulative> ApacheNONIOTCumulative { get; set; }
 
+
         public DbSet<ICubeDealer> ICubeDealers { get; set; }
+
+        public DbSet<City> Cities { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -109,6 +113,15 @@ namespace ConnectPOC.Data
                 .HasForeignKey(r => r.UserVehicleId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            modelBuilder.Entity<City>().ToTable("Cities");
+
+            modelBuilder.Entity<UserProfile>()
+    .HasOne(up => up.City)
+    .WithMany()
+    .HasForeignKey(up => up.CityId)
+    .OnDelete(DeleteBehavior.Restrict);
+
+
             // Ensure Primary Keys for all tables
             modelBuilder.Entity<UserProfile>().HasKey(u => u.UserId);
             modelBuilder.Entity<UserVehicle>().HasKey(v => v.UserVehicleId);
@@ -121,7 +134,18 @@ namespace ConnectPOC.Data
             modelBuilder.Entity<VehicleType>().HasKey(r => r.VehicleTypeId);
             modelBuilder.Entity<EmergencyContact>().HasKey(r => r.EmergencyContactId);
             modelBuilder.Entity<HomeVideo>().HasKey(r => r.VideoLinkId);
+
             modelBuilder.Entity<ICubeDealer>().HasKey(r => r.Id);
+
+            modelBuilder.Entity<City>().HasKey(r => r.CityId);
+
+            modelBuilder.Entity<City>().HasData(
+       new City { CityId = 1, CityName = "Bangalore" },
+       new City { CityId = 2, CityName = "Chennai" },
+       new City { CityId = 3, CityName = "Pune" },
+       new City { CityId = 4, CityName = "Dehradun" }
+   );
+
 
         }
 

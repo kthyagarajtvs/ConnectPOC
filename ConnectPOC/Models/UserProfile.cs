@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ConnectPOC.Models
 {
@@ -27,6 +28,8 @@ namespace ConnectPOC.Models
         public string? OTPHash { get; set; }
 
         public string? Email { get; set; }
+
+        [ForeignKey("City")]
         public long? CityId { get; set; }
         public string? BloodGroup { get; set; }
         public string? ProfileImagePath { get; set; }
@@ -71,6 +74,8 @@ namespace ConnectPOC.Models
 
 
         // Navigation Properties
+
+        public City? City { get; set; }
         public ICollection<UserVehicle> UserVehicles { get; set; } = new List<UserVehicle>();
         public ICollection<N109Cumulative> N109Cumulatives { get; set; } = new List<N109Cumulative>();
         public ICollection<ApacheCumulative> ApacheCumulatives { get; set; } = new List<ApacheCumulative>();

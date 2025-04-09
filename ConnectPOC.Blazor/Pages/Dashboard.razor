@@ -22,32 +22,32 @@
         <MudTabPanel Icon="@Icons.Material.Filled.VerifiedUser" Text="Users" BadgeData='""' BadgeColor="Color.Success">
             <div style="display: flex;  flex-wrap: wrap;  gap: 16px;  padding: 16px;" >
                 <h3 class="section-title">Users List</h3>
-                <MudGrid>
 
-                    @if (users == null || users.Count == 0)
-                    {
-                        <p>Loading users...</p>
-                        <MudProgressCircular Indeterminate="true" Style="width:50px; height:50px;" Class="m-auto" />
-                    }
-                    else
-                    {
-                        <!-- Users Section -->
+            <MudGrid>
+                <MudPaper Class="d-flex flex-wrap gap-4" MaxWidth="528px" Elevation="0">
+                @if (users == null || users.Count == 0)
+                {
+                    <p>Loading users...</p>
+                    <MudProgressCircular Indeterminate="true" Style="width:50px; height:50px;" Class="m-auto" />
+                }
+                else
+                {
+                    <!-- Users Section -->
+                    
+                               <div class="user-grid">
+                        @foreach (var user in users)
+                        {
+                            <div class="user-card">
+                                <h4>@user.FullName</h4>
+                                <p><strong>Email:</strong> @user.Email</p>
+                                <p><strong>Mobile:</strong> @user.MobileNumber</p>
+                            </div>
+                        }
+                    </div>
+                }
+                    </MudPaper>
+            </MudGrid>
 
-
-
-
-                        <div class="user-grid">
-                            @foreach (var user in users)
-                            {
-                                <div class="user-card">
-                                    <h4>@user.FullName</h4>
-                                    <p><strong>Email:</strong> @user.Email</p>
-                                    <p><strong>Mobile:</strong> @user.MobileNumber</p>
-                                </div>
-                            }
-                        </div>
-                    }
-                </MudGrid>
             </div>
         </MudTabPanel>
 

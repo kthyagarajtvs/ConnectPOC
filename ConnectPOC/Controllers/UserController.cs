@@ -1,4 +1,5 @@
 ﻿using ConnectPOC.Configurations;
+using ConnectPOC.DTOs;
 using ConnectPOC.Models;
 using ConnectPOC.Repositories.Interfaces;
 using Microsoft.AspNetCore.Mvc;
@@ -20,13 +21,24 @@ namespace ConnectPOC.Controllers
         }
 
         [HttpPost("register")]
-        public async Task<IActionResult> Register([FromBody] UserProfile user)
+        public async Task<IActionResult> Register([FromBody] UserRegistrationDto user)
         {
-            if (await _userRepo.ExistsAsync(user.EmailAddress))
+            var userProfile = new UserProfile
+            {
+                UserId = 0,
+                FullName = user.Username,
+                EmailAddress = user.Email,
+                OTPHash = user.PasswordHash,
+                CityId = user.CityId,
+                CreatedDate = DateTime.UtcNow,
+                MobileNumber = "9994545180"
+            };
+
+
+            if (await _userRepo.ExistsAsync(user.Email))
                 return BadRequest(ControllerConfig.User_Already_Exists);
 
-          //  user.PasswordHash = HashPassword(user.PasswordHash);
-            var created = await _userRepo.CreateAsync(user);
+            var created = await _userRepo.CreateAsync(userProfile);
             return Ok(created);
         }
 
