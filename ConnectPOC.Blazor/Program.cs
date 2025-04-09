@@ -15,6 +15,7 @@ var config = new ConfigurationBuilder()
 
 // Register UserService
 builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<DealerService>();
 
 builder.Services.AddScoped(sp =>
 {

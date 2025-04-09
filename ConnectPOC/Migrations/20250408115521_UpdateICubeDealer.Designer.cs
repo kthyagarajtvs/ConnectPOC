@@ -4,6 +4,7 @@ using ConnectPOC.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ConnectPOC.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250408115521_UpdateICubeDealer")]
+    partial class UpdateICubeDealer
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -156,46 +159,6 @@ namespace ConnectPOC.Migrations
                     b.HasIndex("UserVehicleId");
 
                     b.ToTable("ApacheNONIOTCumulative");
-                });
-
-            modelBuilder.Entity("ConnectPOC.Models.City", b =>
-                {
-                    b.Property<long>("CityId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("CityId"));
-
-                    b.Property<string>("CityName")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.HasKey("CityId");
-
-                    b.ToTable("Cities", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            CityId = 1L,
-                            CityName = "Bangalore"
-                        },
-                        new
-                        {
-                            CityId = 2L,
-                            CityName = "Chennai"
-                        },
-                        new
-                        {
-                            CityId = 3L,
-                            CityName = "Pune"
-                        },
-                        new
-                        {
-                            CityId = 4L,
-                            CityName = "Dehradun"
-                        });
                 });
 
             modelBuilder.Entity("ConnectPOC.Models.EmergencyContact", b =>
@@ -927,8 +890,6 @@ namespace ConnectPOC.Migrations
 
                     b.HasKey("UserId");
 
-                    b.HasIndex("CityId");
-
                     b.ToTable("UserProfiles");
                 });
 
@@ -1217,16 +1178,6 @@ namespace ConnectPOC.Migrations
                     b.Navigation("UserProfile");
 
                     b.Navigation("UserVehicle");
-                });
-
-            modelBuilder.Entity("ConnectPOC.Models.UserProfile", b =>
-                {
-                    b.HasOne("ConnectPOC.Models.City", "City")
-                        .WithMany()
-                        .HasForeignKey("CityId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.Navigation("City");
                 });
 
             modelBuilder.Entity("ConnectPOC.Models.UserVehicle", b =>
